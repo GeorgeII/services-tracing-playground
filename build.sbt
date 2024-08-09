@@ -1,4 +1,5 @@
 import Dependencies.{Cats, Zio}
+import sbt.Def
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
