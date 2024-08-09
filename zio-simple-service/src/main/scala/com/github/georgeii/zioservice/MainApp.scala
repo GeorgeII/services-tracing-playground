@@ -16,7 +16,11 @@ object MainApp extends ZIOAppDefault {
 
   // Create HTTP route
   private def routes(counterRef: Ref[Int]): Routes[Any, Nothing] = {
-    val composedMiddlewares = Middleware.requestLogging() @@ Middleware.debug
+    val composedMiddlewares =
+      Middleware.requestLogging(
+        loggedRequestHeaders = Set(Header.Accept),
+        loggedResponseHeaders = Set(Header.Accept)
+      ) @@ Middleware.debug
 
     Routes(textRoute(counterRef), jsonRoute) @@ composedMiddlewares
   }
