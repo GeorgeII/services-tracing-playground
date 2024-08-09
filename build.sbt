@@ -1,4 +1,4 @@
-import Dependencies.CatsDependencies
+import Dependencies.Cats
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
@@ -12,7 +12,7 @@ lazy val catsSimpleService = project
     version := "0.0.1",
     Compile / run / mainClass := Option("com.github.georgeii.catseffectservice.Main"),
     testFrameworks += new TestFramework("munit.Framework"),
-    libraryDependencies ++= CatsDependencies.all,
+    libraryDependencies ++= Cats.all,
   )
 
 lazy val zioSimpleService = project

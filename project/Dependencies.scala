@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
 
-  object CatsDependencies {
+  object Cats {
 
     object version {
       val Http4s = "1.0.0-M38"
@@ -30,10 +30,10 @@ object Dependencies {
     )
 
     lazy val all: Seq[ModuleID] = Seq(
-      CatsDependencies.http4s,
-      CatsDependencies.circe,
-      CatsDependencies.munit,
-      CatsDependencies.logback,
+      Cats.http4s,
+      Cats.circe,
+      Cats.munit,
+      Cats.logback,
     ).flatten
   }
 
