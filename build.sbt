@@ -1,4 +1,5 @@
 import Dependencies.{Cats, Zio}
+import sbt.Def
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
@@ -18,6 +19,8 @@ lazy val catsSimpleService = project
     testFrameworks += new TestFramework("munit.Framework"),
     libraryDependencies ++= Cats.all,
   )
+  .enablePlugins(JavaAppPackaging)
+  .settings(settingsDocker)
 
 lazy val zioSimpleService = project
   .in(file("zio-simple-service"))
@@ -28,9 +31,17 @@ lazy val zioSimpleService = project
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     libraryDependencies ++= Zio.all,
   )
+  .enablePlugins(JavaAppPackaging)
+  .settings(settingsDocker)
 
 lazy val all = (project in file("."))
   .settings(
     name := "services-tracing-playground"
   )
   .aggregate(catsSimpleService, zioSimpleService)
+
+def settingsDocker = Seq(
+  Docker / version   := version.value,
+  dockerBaseImage    := "eclipse-temurin:20.0.1_9-jre",
+  dockerExposedPorts := Seq(8080),
+)
