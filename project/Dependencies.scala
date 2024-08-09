@@ -41,7 +41,7 @@ object Dependencies {
 
     object version {
       val zioCore = "2.0.13"
-      val zioHttp = "3.0.0-RC6"
+      val zioHttp = "3.0.0-RC9"
     }
 
     lazy val http: Seq[ModuleID] = Seq(
@@ -51,6 +51,7 @@ object Dependencies {
       "dev.zio" %% "zio-test"          % version.zioCore % Test,
       "dev.zio" %% "zio-test-sbt"      % version.zioCore % Test,
       "dev.zio" %% "zio-test-magnolia" % version.zioCore % Test,
+      "dev.zio" %% "zio-http-testkit"  % version.zioHttp % Test,
     )
 
     lazy val all: Seq[ModuleID] = Seq(

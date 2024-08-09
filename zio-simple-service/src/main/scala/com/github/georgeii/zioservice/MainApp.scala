@@ -11,14 +11,14 @@ object MainApp extends ZIOAppDefault {
       } yield Response.text(s"Zio says hi! $counter")
     )
 
-  private val jsonRoute =
+  val jsonRoute: Route[Any, Nothing] =
     Method.GET / "json" -> handler(Response.json("""{"greetings": "Hello World!"}"""))
 
   // Create HTTP route
-  private def app(counterRef: Ref[Int]): HttpApp[Any] = {
+  private def routes(counterRef: Ref[Int]): Routes[Any, Nothing] = {
     val composedMiddlewares = Middleware.requestLogging() @@ Middleware.debug
 
-    Routes(textRoute(counterRef), jsonRoute).toHttpApp @@ composedMiddlewares
+    Routes(textRoute(counterRef), jsonRoute) @@ composedMiddlewares
   }
 
   // Run it like any simple app
@@ -26,7 +26,7 @@ object MainApp extends ZIOAppDefault {
     val counterRefZio = Ref.make(0)
 
     counterRefZio.flatMap { counterRef =>
-      Server.serve(app(counterRef)).provide(Server.default)
+      Server.serve(routes(counterRef)).provide(Server.default)
     }
   }
 }
