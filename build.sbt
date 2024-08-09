@@ -1,8 +1,12 @@
-import Dependencies.Cats
+import Dependencies.{Cats, Zio}
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := "2.13.14"
+
+ThisBuild / scalacOptions     := optionsOnOrElse("2.13", "2.12")("-Ywarn-unused")("").value
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+ThisBuild / scalafixDependencies ++= List("com.github.liancheng" %% "organize-imports" % "0.6.0")
 
 
 lazy val catsSimpleService = project
@@ -20,6 +24,9 @@ lazy val zioSimpleService = project
   .settings(
     name := "zio-simple-service",
     version := "0.0.1",
+    Compile / run / mainClass := Option("com.github.georgeii.zioservice.MainApp"),
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+    libraryDependencies ++= Zio.all,
   )
 
 lazy val all = (project in file("."))

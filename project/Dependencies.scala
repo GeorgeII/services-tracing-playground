@@ -37,4 +37,27 @@ object Dependencies {
     ).flatten
   }
 
+  object Zio {
+
+    object version {
+      val zioCore = "2.0.13"
+      val zioHttp = "3.0.0-RC6"
+    }
+
+    lazy val http: Seq[ModuleID] = Seq(
+      "dev.zio" %% "zio-http"     % version.zioHttp,
+    )
+    lazy val test: Seq[ModuleID] = Seq(
+      "dev.zio" %% "zio-test"          % version.zioCore % Test,
+      "dev.zio" %% "zio-test-sbt"      % version.zioCore % Test,
+      "dev.zio" %% "zio-test-magnolia" % version.zioCore % Test,
+    )
+
+    lazy val all: Seq[ModuleID] = Seq(
+      Zio.http,
+      Zio.test,
+    ).flatten
+
+  }
+
 }
