@@ -1,21 +1,13 @@
 package com.github.georgeii.catseffectservice
 
 import cats.effect.{Concurrent, Ref}
-import cats.effect.kernel.Sync
 import cats.implicits._
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto._
 import org.http4s._
-import org.http4s.implicits._
-import org.http4s.client.Client
-import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.circe._
-import org.http4s.Method._
 
-
-import scala.concurrent.duration.DurationInt
-
-trait Jokes[F[_]]{
+trait Jokes[F[_]] {
   def get: F[Jokes.Joke]
 }
 
@@ -32,10 +24,7 @@ object Jokes {
       jsonEncoderOf
   }
 
-  def impl[F[_]: Concurrent](C: Client[F], counterRef: Ref[F, Int]): Jokes[F] = new Jokes[F]{
-    val dsl = new Http4sClientDsl[F]{}
-    import dsl._
-
+  def impl[F[_]: Concurrent](counterRef: Ref[F, Int]): Jokes[F] = new Jokes[F] {
 
     def get: F[Jokes.Joke] = {
       for {
