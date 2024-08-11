@@ -6,6 +6,8 @@ import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto._
 import org.http4s._
 import org.http4s.circe._
+import org.http4s.client.Client
+import org.http4s.client.dsl.Http4sClientDsl
 
 trait Jokes[F[_]] {
   def get: F[Jokes.Joke]
@@ -24,7 +26,8 @@ object Jokes {
       jsonEncoderOf
   }
 
-  def impl[F[_]: Concurrent](counterRef: Ref[F, Int]): Jokes[F] = new Jokes[F] {
+  def impl[F[_]: Concurrent](C: Client[F], counterRef: Ref[F, Int]): Jokes[F] = new Jokes[F] {
+    val dsl = new Http4sClientDsl[F] {}
 
     def get: F[Jokes.Joke] = {
       for {
