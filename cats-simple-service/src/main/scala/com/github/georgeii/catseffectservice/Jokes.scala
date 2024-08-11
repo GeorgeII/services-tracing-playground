@@ -1,13 +1,16 @@
 package com.github.georgeii.catseffectservice
 
 import cats.effect.{Concurrent, Ref}
+import cats.effect.kernel.Async
 import cats.implicits._
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto._
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.client.Client
-import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.client.middleware.Logger
+
+import scala.util.Random
 
 trait Jokes[F[_]] {
   def get: F[Jokes.Joke]
@@ -26,13 +29,36 @@ object Jokes {
       jsonEncoderOf
   }
 
-  def impl[F[_]: Concurrent](C: Client[F], counterRef: Ref[F, Int]): Jokes[F] = new Jokes[F] {
-    val dsl = new Http4sClientDsl[F] {}
+  def impl[F[_]: Async](C: Client[F], counterRef: Ref[F, Int]): Jokes[F] = new Jokes[F] {
 
     def get: F[Jokes.Joke] = {
       for {
         counter <- counterRef.updateAndGet(_ + 1)
+        _ <- maybeMakeSideRequest
       } yield Joke(s"Cats are playing with effects. What a joke! $counter")
     }
+
+    val urls: Vector[Uri] = Vector(
+      Uri.unsafeFromString("http://zio-simple-service:8080/text"),
+    )
+
+    private def maybeMakeSideRequest: F[Unit] = {
+      for {
+        randomInt <- Async[F].delay(Random.nextInt(1000))
+        url = urls(randomInt % urls.size)
+
+        shouldResend <- Async[F].delay(Random.nextBoolean())
+        _ <- Async[F].whenA(shouldResend)(C.get(url)(response => logRequestOrResponse(response)))
+      } yield ()
+
+    }
+
+    private def logRequestOrResponse(message: Message[F]): F[Unit] = {
+      Logger.logMessage(message)(
+        logHeaders = true,
+        logBody = true,
+      )(str => Async[F].delay(println(str)))
+    }
+
   }
 }
