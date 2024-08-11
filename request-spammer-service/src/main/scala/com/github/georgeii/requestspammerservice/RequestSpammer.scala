@@ -31,24 +31,26 @@ object RequestSpammer extends IOApp.Simple {
     }
   }
 
-  val run: IO[Unit] =
-    EmberClientBuilder.default[IO].build.use { client =>
-      (for {
-        counterRef <- counterRefF
-        counter <- counterRef.updateAndGet(_ + 1)
+  val run: IO[Unit] = {
+    counterRefF.flatMap { counterRef =>
+      EmberClientBuilder.default[IO].build.use { client =>
+        (for {
+          counter <- counterRef.updateAndGet(_ + 1)
 
-        randomInt <- IO(Random.nextInt(1000))
-        url = urls(randomInt % urls.size)
+          randomInt <- IO(Random.nextInt(1000))
+          url = urls(randomInt % urls.size)
 
-        _ <- IO(println(s"Sending request $counter to $url"))
-        _ <- client.get(url)(response =>
-          Logger.logMessage(response)(
-            logHeaders = true,
-            logBody = true,
-          )(str => IO(println(str))))
-        _ <- IO.sleep(randomInt.millis)
-      } yield ())
-        .foreverM
-        .retry(5, 5.seconds)
+          _ <- IO(println(s"Sending request $counter to $url"))
+          _ <- client.get(url)(response =>
+            Logger.logMessage(response)(
+              logHeaders = true,
+              logBody = true,
+            )(str => IO(println(str))))
+          _ <- IO.sleep(randomInt.millis)
+        } yield ())
+          .foreverM
+          .retry(5, 5.seconds)
+      }
     }
+  }
 }
