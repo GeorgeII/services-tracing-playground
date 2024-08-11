@@ -9,3 +9,6 @@ services:
     image: "zio-simple-service:0.0.1"
     ports:
       - "8932:8080"
+
+  request-spammer-service:
+    image: "request-spammer-service:0.0.1"

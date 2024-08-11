@@ -10,6 +10,7 @@ object Dependencies {
       val Munit = "0.7.29"
       val Logback = "1.4.14"
       val MunitCatsEffect = "1.0.7"
+      val CatsEffect = "3.4.4"
     }
 
     lazy val http4s: Seq[ModuleID] = Seq(
@@ -28,12 +29,16 @@ object Dependencies {
     lazy val logback: Seq[ModuleID] = Seq(
       "ch.qos.logback"  %  "logback-classic"     % version.Logback         % Runtime,
     )
+    lazy val catsEffect: Seq[ModuleID] = Seq(
+      "org.typelevel" %% "cats-effect" % version.CatsEffect,
+    )
 
     lazy val all: Seq[ModuleID] = Seq(
       Cats.http4s,
       Cats.circe,
       Cats.munit,
       Cats.logback,
+      Cats.catsEffect,
     ).flatten
   }
 

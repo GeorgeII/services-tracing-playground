@@ -33,11 +33,22 @@ lazy val zioSimpleService = project
   .enablePlugins(JavaAppPackaging)
   .settings(settingsDocker)
 
+lazy val requestSpammerService = project
+  .in(file("request-spammer-service"))
+  .settings(
+    name := "request-spammer-service",
+    version := "0.0.1",
+    Compile / run / mainClass := Option("com.github.georgeii.requestspammerservice.RequestSpammer"),
+    libraryDependencies ++= (Cats.http4s ++ Cats.catsEffect),
+  )
+  .enablePlugins(JavaAppPackaging)
+  .settings(settingsDocker)
+
 lazy val all = (project in file("."))
   .settings(
     name := "services-tracing-playground"
   )
-  .aggregate(catsSimpleService, zioSimpleService)
+  .aggregate(catsSimpleService, zioSimpleService, requestSpammerService)
 
 def settingsDocker = Seq(
   Docker / version   := version.value,
