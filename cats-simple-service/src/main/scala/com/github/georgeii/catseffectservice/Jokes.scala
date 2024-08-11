@@ -10,6 +10,7 @@ import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.client.middleware.Logger
 
+import scala.concurrent.duration.DurationInt
 import scala.util.Random
 
 trait Jokes[F[_]] {
@@ -48,7 +49,11 @@ object Jokes {
         url = urls(randomInt % urls.size)
 
         shouldResend <- Async[F].delay(Random.nextBoolean())
-        _ <- Async[F].whenA(shouldResend)(C.get(url)(response => logRequestOrResponse(response)))
+        _ <- Async[F].whenA(shouldResend)(
+          Async[F].delay(println("Sending request to another service")) >>
+            Async[F].sleep(randomInt.millis) >>
+            C.get(url)(response => logRequestOrResponse(response))
+        )
       } yield ()
 
     }
