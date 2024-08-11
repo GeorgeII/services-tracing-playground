@@ -4,6 +4,8 @@ import cats.effect.{IO, IOApp, Ref}
 import cats.effect.std.Random
 import org.http4s.ember.client.EmberClientBuilder
 
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
+
 object Main extends IOApp.Simple {
   private val jokeCounterRefF: IO[Ref[IO, Int]] = Ref.of(0)
   private val requestSpammerCounterRefF: IO[Ref[IO, Int]] = Ref.of(0)
@@ -17,7 +19,11 @@ object Main extends IOApp.Simple {
           jokeCounterRef <- jokeCounterRefF
           requestSpammerCounterRef <- requestSpammerCounterRefF
 
-          clientForeverRunning = CatsEffectServiceClient.run(client, requestSpammerCounterRef)
+          clientForeverRunning =
+            retryN(
+              CatsEffectServiceClient.run(client, requestSpammerCounterRef),
+              n = 5,
+              timeout = 5.seconds)
           serverForeverRunning = CatsEffectServiceServer.run[IO](jokeCounterRef)
 
           // if client of server fails, the application fails
@@ -25,6 +31,13 @@ object Main extends IOApp.Simple {
         } yield ()
       }
     } >> IO.never
+  }
 
+  private def retryN[A](io: IO[A], n: Int, timeout: FiniteDuration): IO[A] = {
+    io.attempt.flatMap {
+      case Right(aa) => IO.delay(aa)
+      case Left(ex) if n > 0 => IO.println(ex) >> IO.sleep(timeout) >> retryN(io, n - 1, timeout)
+      case Left(ex) => IO.raiseError(ex)
+    }
   }
 }

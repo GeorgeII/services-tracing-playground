@@ -42,5 +42,4 @@ lazy val all = (project in file("."))
 def settingsDocker = Seq(
   Docker / version   := version.value,
   dockerBaseImage    := "eclipse-temurin:20.0.1_9-jre",
-  dockerExposedPorts := Seq(8080),
 )

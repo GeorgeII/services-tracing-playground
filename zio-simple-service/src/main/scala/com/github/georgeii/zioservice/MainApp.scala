@@ -27,10 +27,26 @@ object MainApp extends ZIOAppDefault {
 
   // Run it like any simple app
   override val run: ZIO[Any, Throwable, Nothing] = {
-    val counterRefZio = Ref.make(0)
+    val serverCounterRefZio = Ref.make(0)
+    val clientCounterRefZio = Ref.make(0)
 
-    counterRefZio.flatMap { counterRef =>
-      Server.serve(routes(counterRef)).provide(Server.default)
-    }
+    for {
+      clientCounterRef <- clientCounterRefZio
+      serverCounterRef <- serverCounterRefZio
+
+      _ <- ZIO.logInfo("bla-bla-bla")
+      requestSpammer <- RequestSpammer.make
+
+      nothingClient <-
+        requestSpammer.run
+          .retry(Schedule.recurs(5) && Schedule.spaced(5.seconds))
+          .provide(ZClient.default, ZLayer.succeed(clientCounterRef))
+      nothingServer = Server.serve(routes(serverCounterRef)).provide(Server.default)
+      raced <- ZIO.raceAll(nothingClient, List(nothingServer))
+    } yield raced
+
+//    serverCounterRefZio.flatMap { counterRef =>
+//      Server.serve(routes(counterRef)).provide(Server.default)
+//    }
   }
 }
