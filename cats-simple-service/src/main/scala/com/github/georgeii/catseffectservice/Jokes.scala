@@ -48,7 +48,7 @@ object Jokes {
         randomInt <- Async[F].delay(Random.nextInt(1000))
         url = urls(randomInt % urls.size)
 
-        shouldResend <- Async[F].delay(Random.nextBoolean())
+        shouldResend = randomInt > 300
         _ <- Async[F].whenA(shouldResend)(
           Async[F].delay(println("Sending request to another service")) >>
             Async[F].sleep(randomInt.millis) >>

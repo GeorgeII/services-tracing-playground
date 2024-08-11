@@ -23,7 +23,7 @@ object MainApp extends ZIOAppDefault {
         randomInt <- ZIO.attempt(Rnd.nextInt(1000))
         url = urls(randomInt % urls.size)
 
-        shouldResend <- ZIO.attempt(Rnd.nextBoolean())
+        shouldResend = randomInt > 300
         _ <- ZIO.when(shouldResend)(
           ZIO.logInfo("Sending request to another service") *>
             ZIO.sleep(Duration.fromScala(DurationInt(randomInt).millis)) *>
