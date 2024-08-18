@@ -24,11 +24,13 @@ object MainApp extends ZIOAppDefault {
         url = urls(randomInt % urls.size)
 
         shouldResend = randomInt > 300
-        _ <- ZIO.when(shouldResend)(
+        response <- ZIO.when(shouldResend)(
           ZIO.logInfo("Sending request to another service") *>
             ZIO.sleep(Duration.fromScala(DurationInt(randomInt).millis)) *>
             client.request(Request.get(url))
-        )
+        ).some
+        responseBody <- response.body.asString
+        _ <- ZIO.logInfo(responseBody)
       } yield ()).catchAll { error =>
         ZIO.logErrorCause("Could not send intermediate request", Cause.fail(error))
       }
