@@ -11,6 +11,8 @@ object Dependencies {
       val Logback = "1.4.14"
       val MunitCatsEffect = "1.0.7"
       val CatsEffect = "3.4.4"
+      val Otel4s = "0.8.1"
+      val OpenTelemetry = "1.41.0"
     }
 
     lazy val http4s: Seq[ModuleID] = Seq(
@@ -32,6 +34,11 @@ object Dependencies {
     lazy val catsEffect: Seq[ModuleID] = Seq(
       "org.typelevel" %% "cats-effect" % version.CatsEffect,
     )
+    lazy val openTelemetry: Seq[ModuleID] = Seq(
+      "org.typelevel"    %% "otel4s-oteljava"                          % version.Otel4s,
+      "io.opentelemetry" % "opentelemetry-exporter-otlp"               % version.OpenTelemetry % Runtime,
+      "io.opentelemetry" % "opentelemetry-sdk-extension-autoconfigure" % version.OpenTelemetry % Runtime
+    )
 
     lazy val all: Seq[ModuleID] = Seq(
       Cats.http4s,
@@ -39,6 +46,7 @@ object Dependencies {
       Cats.munit,
       Cats.logback,
       Cats.catsEffect,
+      Cats.openTelemetry,
     ).flatten
   }
 

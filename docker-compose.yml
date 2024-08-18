@@ -4,6 +4,10 @@ services:
     image: "cats-simple-service:0.0.1"
     ports:
       - "8931:8080"
+    environment:
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+#      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4317
 
   zio-simple-service:
     image: "zio-simple-service:0.0.1"
@@ -12,3 +16,22 @@ services:
 
   request-spammer-service:
     image: "request-spammer-service:0.0.1"
+
+
+  jaeger:
+    image: "jaegertracing/all-in-one:1.60"
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "14250:14250"
+      - "9411:9411"
+
+      - "4317:4317"
+      - "4318:4318"
+    environment:
+#      - LOG_LEVEL=debug
+      - COLLECTOR_OTLP_ENABLED=true

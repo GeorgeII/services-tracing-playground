@@ -7,10 +7,11 @@ import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.implicits._
 import org.http4s.server.middleware.Logger
+import org.typelevel.otel4s.trace.Tracer
 
 object CatsEffectServiceServer {
 
-  def run[F[_]: Async](jokeCounterRef: Ref[F, Int]): F[Nothing] = {
+  def run[F[_]: Async: Tracer](jokeCounterRef: Ref[F, Int]): F[Nothing] = {
     for {
       client <- EmberClientBuilder.default[F].build
       helloWorldAlg = HelloWorld.impl[F]

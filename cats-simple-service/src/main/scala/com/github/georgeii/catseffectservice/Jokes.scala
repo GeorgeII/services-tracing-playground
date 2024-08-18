@@ -9,6 +9,7 @@ import org.http4s._
 import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.client.middleware.Logger
+import org.typelevel.otel4s.trace.Tracer
 
 import scala.concurrent.duration.DurationInt
 import scala.util.Random
@@ -30,7 +31,7 @@ object Jokes {
       jsonEncoderOf
   }
 
-  def impl[F[_]: Async](C: Client[F], counterRef: Ref[F, Int]): Jokes[F] = new Jokes[F] {
+  def impl[F[_]: Async: Tracer](C: Client[F], counterRef: Ref[F, Int]): Jokes[F] = new Jokes[F] {
 
     def get: F[Jokes.Joke] = {
       for {
@@ -44,17 +45,23 @@ object Jokes {
     )
 
     private def maybeMakeSideRequest: F[Unit] = {
-      for {
-        randomInt <- Async[F].delay(Random.nextInt(1000))
-        url = urls(randomInt % urls.size)
+      Tracer[F].span("maybeMakeSideRequest").use { span =>
+        for {
+          _ <- span.addEvent("Deciding whether to make a side request.")
 
-        shouldResend = randomInt > 300
-        _ <- Async[F].whenA(shouldResend)(
-          Async[F].delay(println("Sending request to another service")) >>
-            Async[F].sleep(randomInt.millis) >>
-            C.get(url)(response => logRequestOrResponse(response))
-        )
-      } yield ()
+          randomInt <- Async[F].delay(Random.nextInt(1000))
+          url = urls(randomInt % urls.size)
+
+          shouldResend = randomInt > 300
+          _ <- Async[F].whenA(shouldResend)(
+            span.addEvent("Sending side request") >>
+              Async[F].delay(println("Sending request to another service")) >>
+              Async[F].sleep(randomInt.millis) >>
+              C.get(url)(response => logRequestOrResponse(response))
+          )
+          _ <- span.addEvent("Response from another service received.")
+        } yield ()
+      }
 
     }
 

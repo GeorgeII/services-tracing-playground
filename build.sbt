@@ -15,6 +15,12 @@ lazy val catsSimpleService = project
     name := "cats-simple-service",
     version := "0.0.1",
     Compile / run / mainClass := Option("com.github.georgeii.catseffectservice.Main"),
+    javaOptions ++= Seq(
+      "-Dotel.java.global-autoconfigure.enabled=true",
+      "-Dotel.service.name=cats-simple-service",
+      "-Dotel.metrics.exporter=none",
+      "-Dotel.exporter.otlp.endpoint=http://jaeger:4317",
+    ),
     testFrameworks += new TestFramework("munit.Framework"),
     libraryDependencies ++= Cats.all,
   )
